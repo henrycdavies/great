@@ -16,11 +16,18 @@ pub fn trunk(_args: &TrunkCommandArgs) -> Result<()> {
         },
     };
     let trunk_branch_name = head.trim_start_matches("ref: refs/heads/");
-    match repo.checkout_head(None) {
-        Ok(_) => Ok(()),
-        Err(e) => {
-            eprintln!("failed to checkout branch '{}': {}", trunk_branch_name, e);
-            Err(Error::new(std::io::ErrorKind::InvalidInput, "failed to checkout branch"))
+    println!("Checking out trunk branch: {}", trunk_branch_name);
+    let (object, reference) = repo.revparse_ext(trunk_branch_name).expect("Object not found");
+    repo.checkout_tree(&object, None).expect("Failed to checkout");
+
+    match reference {
+        Some(refname) => {
+            repo.set_head(refname.name().unwrap());
+            return Ok(())
         },
-    }
+        None => {
+            repo.set_head_detached(object.id());
+            Err(Error::new(std::io::ErrorKind::Other, "No reference found"))
+        }
+    }.expect("Failed to set HEAD")
 }
