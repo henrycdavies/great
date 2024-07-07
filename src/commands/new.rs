@@ -4,7 +4,6 @@ use super::{checkout::open_repo, result::Result, Error};
 
 #[derive(Args, Debug)]
 pub struct NewCommandArgs {
-    #[clap(short, long)]
     pub message: String,
 }
 
