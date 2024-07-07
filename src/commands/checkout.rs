@@ -20,10 +20,10 @@ pub fn open_repo() -> Result<Repository> {
 pub fn checkout(args: &CheckoutCommandArgs) -> Result<()> {
     let repo = open_repo()?;
     let refname = &args.branch;
-    let (object, reference) = repo.revparse_ext(refname).map_err(|e| {
+    let (object, reference) = repo.revparse_ext(refname).map_err(|_| {
         Error::new(
             ErrorKind::InvalidInput,
-            format!("Branch ref '{}' not found: {}", refname, e),
+            format!("The branch '{}' was not found in the repository.", refname),
         )
     })?;
     
@@ -32,25 +32,29 @@ pub fn checkout(args: &CheckoutCommandArgs) -> Result<()> {
             git2::ErrorCode::Conflict {} => {
                 return Err(Error::new(
                     ErrorKind::GitError,
-                    "Checkout failed: Conflicts detected.".to_string(),
+                    format!("Conflicts detected in the {} branch. Please stash your changes, or reset/update your branch and retry.", refname),
                 ));
             },
             _ => {
                 return Err(Error::new(
                     ErrorKind::GitError,
-                    format!("Checkout failed: {}", e),
+                    format!("Unknown error when searching for : {}", e.message()),
                 ));
             },
         }
     }
-
-    match reference {
-        // gref is an actual reference like branches or tags
-        Some(gref) => repo.set_head(gref.name().unwrap()),
-        // this is a commit, not a reference
-        None => repo.set_head_detached(object.id()),
+    
+    if let Some(gref) = reference {
+        repo.set_head(gref.name().unwrap()).map_err(|_| {
+            Error::new(
+                ErrorKind::GitError,
+                format!("Failed to set HEAD to '{}'.", refname),
+            )
+        })?;
     }
-    .expect("Failed to set HEAD");
-
-    Ok(())
+    
+    Err(Error::new(
+        ErrorKind::GitError,
+        format!("Failed to set HEAD to '{}'.", refname),
+    ))
 }
