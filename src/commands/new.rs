@@ -1,7 +1,9 @@
 use clap::Args;
 use regex::Regex;
 
-use super::{checkout::open_repo, result::Result, Error};
+use crate::commands::checkout::{self, CheckoutCommandArgs};
+
+use super::{checkout::{open_repo, checkout}, result::Result, Error};
 
 #[derive(Args, Debug)]
 pub struct NewCommandArgs {
@@ -20,6 +22,7 @@ pub fn new(args: &NewCommandArgs) -> Result<()> {
     let repo = open_repo()?;
     let branch_name = format_branch_name(&args.message);
     println!("Branch name: {}", branch_name);
+
     // Create a branch
     repo.branch(
         &branch_name,
@@ -31,5 +34,9 @@ pub fn new(args: &NewCommandArgs) -> Result<()> {
             format!("Failed to create branch: {}", e),
         )
     })?;
+
+    // Checkout the branch
+    let checkout_args = CheckoutCommandArgs { branch: branch_name.clone() };
+    checkout(&checkout_args)?;
     Ok(())
 }
