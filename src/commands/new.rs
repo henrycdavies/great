@@ -9,10 +9,9 @@ pub struct NewCommandArgs {
 }
 
 pub fn format_branch_name(message: &str) -> String {
-    let date = chrono::Local::now().format("%Y%m%d%").to_string();
     let invalid_chars_pattern = Regex::new(r"[ ~^:?*\[\]\\`{}<>/\.\.@\|]+").unwrap();
     let alphanumeric_message = invalid_chars_pattern.replace_all(message, "_").to_string();
-    println!("alpha message: {}", alphanumeric_message);
+    let date = chrono::Local::now().format("%Y%m%d").to_string();
     let branch_name = format!("{}-{}", date, alphanumeric_message);
     branch_name
 }
@@ -20,7 +19,7 @@ pub fn format_branch_name(message: &str) -> String {
 pub fn new(args: &NewCommandArgs) -> Result<()> {
     let repo = open_repo()?;
     let branch_name = format_branch_name(&args.message);
-
+    println!("Branch name: {}", branch_name);
     // Create a branch
     repo.branch(
         &branch_name,
