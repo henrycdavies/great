@@ -1,4 +1,5 @@
 use clap::Args;
+use regex::Regex;
 
 use super::{checkout::open_repo, result::Result, Error};
 
@@ -8,11 +9,10 @@ pub struct NewCommandArgs {
 }
 
 pub fn format_branch_name(message: &str) -> String {
-    let date = chrono::Local::now().format("%Y%m%d%");
-    let alphanumeric_message = message
-        .chars()
-        .filter(|c| c.is_alphanumeric())
-        .collect::<String>();
+    let date = chrono::Local::now().format("%Y%m%d%").to_string();
+    let invalid_chars_pattern = Regex::new(r"[ ~^:?*\[\]\\`{}<>/\.\.@\|]+").unwrap();
+    let alphanumeric_message = invalid_chars_pattern.replace_all(message, "_").to_string();
+    println!("alpha message: {}", alphanumeric_message);
     let branch_name = format!("{}-{}", date, alphanumeric_message);
     branch_name
 }
