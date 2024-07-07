@@ -1,4 +1,4 @@
-use std::io::Result;
+use super::result::Result;
 
 use clap::Args;
 

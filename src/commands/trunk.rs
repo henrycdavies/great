@@ -1,4 +1,4 @@
-use std::io::{Error, Result};
+use super::{checkout::open_repo, error::ErrorKind, result::Result, Error};
 
 use clap::Args;
 use git2::Repository;
@@ -9,13 +9,7 @@ use super::checkout::{self, CheckoutCommandArgs};
 pub struct TrunkCommandArgs {}
 
 pub fn trunk(_args: &TrunkCommandArgs) -> Result<()> {
-    let repo = match Repository::open(".") {
-        Ok(repo) => repo,
-        Err(e) => {
-            eprintln!("failed to open repository: {}", e);
-            std::process::exit(1);
-        },
-    };
+    let repo = open_repo()?;
     let trunk_branch_name = find_trunk_branch(&repo)?;
     checkout::checkout(&CheckoutCommandArgs { branch: trunk_branch_name })
 }
@@ -27,10 +21,19 @@ pub fn find_trunk_branch(repo: &Repository) -> Result<String> {
         }
     }
 
-    let head = repo.head().map_err(|e| Error::new(std::io::ErrorKind::InvalidInput, e))?;
+    let head = repo.head().map_err(|e| {
+        // Error::new(std::io::ErrorKind::InvalidInput, e)
+        Error::new(
+            ErrorKind::GitError,
+            format!("Failed to get HEAD: {}", e),
+        )
+    })?;
     if let Some(name) = head.shorthand() {
         return Ok(name.to_string());
     }
 
-    Err(Error::new(std::io::ErrorKind::InvalidInput, "failed to find trunk branch"))
+    Err(Error::new(
+        ErrorKind::InvalidInput,
+        "Failed to determine trunk branch".to_string(),
+    ))
 }

@@ -1,6 +1,6 @@
-use std::io::Result;
-
 use clap::Args;
+
+use super::result::Result;
 
 #[derive(Args, Debug)]
 pub struct NewCommandArgs {}
