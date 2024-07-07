@@ -3,8 +3,8 @@ use super::result::Result;
 use clap::Args;
 
 #[derive(Args, Debug)]
-pub struct DeleteCommandArgs {}
+pub struct UpdateArgs {}
 
-pub fn delete(_args: &DeleteCommandArgs) -> Result<()> {
+pub fn update(_args: &UpdateArgs) -> Result<()> {
     unimplemented!("new command not implemented")
 }

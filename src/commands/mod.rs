@@ -1,22 +1,25 @@
+mod checkout;
 mod error;
 mod trunk;
 mod new;
-mod edit;
+mod update;
 mod delete;
 mod up;
 mod down;
 mod push;
 mod raise_pr;
+mod result;
+use checkout::{checkout, CheckoutCommandArgs};
 use delete::{delete, DeleteCommandArgs};
 use down::{down, DownCommandArgs};
-use edit::{edit, EditArgs};
-pub use error::CommandExecutionError;
+use result::Result;
+use update::{update, UpdateArgs};
+pub use error::Error;
 use new::{new, NewCommandArgs};
 use push::{push, PushCommandArgs};
 use raise_pr::{raise_pr, RaisePrCommandArgs};
 use trunk::{trunk, TrunkCommandArgs};
 use up::{up, UpCommandArgs};
-use std::io::Result;
 
 use clap::{Parser, Subcommand};
 
@@ -35,7 +38,7 @@ struct Cli {
 /*
 trunk - Go to trunk
 new - Create a branch from current branch
-edit - Reset HEAD to parent branch, stage changes, & make a commit with changes
+update - Reset HEAD to parent branch, stage changes, & make a commit with changes
 delete - Deletes current branch, 
 up - Go to child
 down - Go to parent
@@ -45,9 +48,10 @@ raise-pr - Raise PR (requires plugin for remote)
 
 #[derive(Subcommand)]
 pub enum Commands {
+    Checkout(CheckoutCommandArgs),
     Trunk(TrunkCommandArgs),
     New(NewCommandArgs),
-    Edit(EditArgs),
+    Edit(UpdateArgs),
     Delete(DeleteCommandArgs),
     Up(UpCommandArgs),
     Down(DownCommandArgs),
@@ -65,9 +69,10 @@ impl Commands {
 impl ExecutableCommand for Commands {
     fn execute(&self) -> Result<()> {
         match self {
+            Commands::Checkout(args) => checkout(args),
             Commands::New(args) => new(args),
             Commands::Trunk(args) => trunk(args),
-            Commands::Edit(args) => edit(args),
+            Commands::Edit(args) => update(args),
             Commands::Delete(args) => delete(args),
             Commands::Up(args) => up(args),
             Commands::Down(args) => down(args),

@@ -1,33 +1,39 @@
-use std::{fs, io::{Error, Result}};
+use super::{checkout::open_repo, error::ErrorKind, result::Result, Error};
 
 use clap::Args;
 use git2::Repository;
+
+use super::checkout::{self, CheckoutCommandArgs};
 
 #[derive(Args, Debug)]
 pub struct TrunkCommandArgs {}
 
 pub fn trunk(_args: &TrunkCommandArgs) -> Result<()> {
-    let head = fs::read_to_string(".git/HEAD")?;
-    let repo = match Repository::open(".") {
-        Ok(repo) => repo,
-        Err(e) => {
-            eprintln!("failed to open repository: {}", e);
-            std::process::exit(1);
-        },
-    };
-    let trunk_branch_name = head.trim_start_matches("ref: refs/heads/");
-    println!("Checking out trunk branch: {}", trunk_branch_name);
-    let (object, reference) = repo.revparse_ext(trunk_branch_name).expect("Object not found");
-    repo.checkout_tree(&object, None).expect("Failed to checkout");
+    let repo = open_repo()?;
+    let trunk_branch_name = find_trunk_branch(&repo)?;
+    checkout::checkout(&CheckoutCommandArgs { branch: trunk_branch_name })
+}
 
-    match reference {
-        Some(refname) => {
-            repo.set_head(refname.name().unwrap());
-            return Ok(())
-        },
-        None => {
-            repo.set_head_detached(object.id());
-            Err(Error::new(std::io::ErrorKind::Other, "No reference found"))
+pub fn find_trunk_branch(repo: &Repository) -> Result<String> {
+    for branch_name in &["main", "master"] {
+        if repo.find_branch(branch_name, git2::BranchType::Local).is_ok() {
+            return Ok(branch_name.to_string());
         }
-    }.expect("Failed to set HEAD")
+    }
+
+    let head = repo.head().map_err(|e| {
+        // Error::new(std::io::ErrorKind::InvalidInput, e)
+        Error::new(
+            ErrorKind::GitError,
+            format!("Failed to get HEAD: {}", e),
+        )
+    })?;
+    if let Some(name) = head.shorthand() {
+        return Ok(name.to_string());
+    }
+
+    Err(Error::new(
+        ErrorKind::InvalidInput,
+        "Failed to determine trunk branch".to_string(),
+    ))
 }
