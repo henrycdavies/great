@@ -18,6 +18,14 @@ impl Error {
     pub fn new(kind: ErrorKind, message: String) -> Self {
         Self { kind, message }
     }
+
+    pub fn message(&self) -> &str {
+        &self.message
+    }
+
+    pub fn kind(&self) -> &ErrorKind {
+        &self.kind
+    }
 }
 
 // Implement `Display` for `CommandExecutionError`.
