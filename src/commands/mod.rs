@@ -1,3 +1,4 @@
+mod checkout;
 mod error;
 mod trunk;
 mod new;
@@ -7,6 +8,7 @@ mod up;
 mod down;
 mod push;
 mod raise_pr;
+use checkout::{checkout, CheckoutCommandArgs};
 use delete::{delete, DeleteCommandArgs};
 use down::{down, DownCommandArgs};
 use edit::{edit, EditArgs};
@@ -45,6 +47,7 @@ raise-pr - Raise PR (requires plugin for remote)
 
 #[derive(Subcommand)]
 pub enum Commands {
+    Checkout(CheckoutCommandArgs),
     Trunk(TrunkCommandArgs),
     New(NewCommandArgs),
     Edit(EditArgs),
@@ -65,6 +68,7 @@ impl Commands {
 impl ExecutableCommand for Commands {
     fn execute(&self) -> Result<()> {
         match self {
+            Commands::Checkout(args) => checkout(args),
             Commands::New(args) => new(args),
             Commands::Trunk(args) => trunk(args),
             Commands::Edit(args) => edit(args),

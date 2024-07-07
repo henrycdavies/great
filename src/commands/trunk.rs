@@ -1,13 +1,14 @@
-use std::{fs, io::{Error, Result}};
+use std::io::{Error, Result};
 
 use clap::Args;
 use git2::Repository;
+
+use super::checkout::{self, CheckoutCommandArgs};
 
 #[derive(Args, Debug)]
 pub struct TrunkCommandArgs {}
 
 pub fn trunk(_args: &TrunkCommandArgs) -> Result<()> {
-    let head = fs::read_to_string(".git/HEAD")?;
     let repo = match Repository::open(".") {
         Ok(repo) => repo,
         Err(e) => {
@@ -15,12 +16,21 @@ pub fn trunk(_args: &TrunkCommandArgs) -> Result<()> {
             std::process::exit(1);
         },
     };
-    let trunk_branch_name = head.trim_start_matches("ref: refs/heads/");
-    match repo.checkout_head(None) {
-        Ok(_) => Ok(()),
-        Err(e) => {
-            eprintln!("failed to checkout branch '{}': {}", trunk_branch_name, e);
-            Err(Error::new(std::io::ErrorKind::InvalidInput, "failed to checkout branch"))
-        },
+    let trunk_branch_name = find_trunk_branch(&repo)?;
+    checkout::checkout(&CheckoutCommandArgs { branch: trunk_branch_name })
+}
+
+pub fn find_trunk_branch(repo: &Repository) -> Result<String> {
+    for branch_name in &["main", "master"] {
+        if repo.find_branch(branch_name, git2::BranchType::Local).is_ok() {
+            return Ok(branch_name.to_string());
+        }
     }
+
+    let head = repo.head().map_err(|e| Error::new(std::io::ErrorKind::InvalidInput, e))?;
+    if let Some(name) = head.shorthand() {
+        return Ok(name.to_string());
+    }
+
+    Err(Error::new(std::io::ErrorKind::InvalidInput, "failed to find trunk branch"))
 }
