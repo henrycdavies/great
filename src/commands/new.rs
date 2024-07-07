@@ -46,7 +46,7 @@ pub fn new(args: &NewCommandArgs) -> Result<()> {
 
     // Update branch
     let update_args = UpdateArgs { message: Some(args.message.clone()) };
-    update(&update_args)?;
+    // update(&update_args)?;
 
     Ok(())
 }
