@@ -44,15 +44,16 @@ pub fn checkout(args: &CheckoutCommandArgs) -> Result<()> {
         }
     }
     
-    if let Some(gref) = reference {
-        repo.set_head(gref.name().unwrap()).map_err(|_| {
+    if let Some(branch_ref) = reference {
+        repo.set_head(branch_ref.name().unwrap()).map_err(|_| {
             Error::new(
                 ErrorKind::GitError,
                 format!("Failed to set HEAD to '{}'.", refname),
             )
         })?;
+        return Ok(());
     }
-    
+
     Err(Error::new(
         ErrorKind::GitError,
         format!("Failed to set HEAD to '{}'.", refname),
