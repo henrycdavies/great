@@ -7,6 +7,7 @@ mod delete;
 mod up;
 mod down;
 mod push;
+mod stash;
 mod raise_pr;
 mod result;
 use checkout::{checkout, CheckoutCommandArgs};

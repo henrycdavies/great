@@ -1,9 +1,9 @@
 use clap::Args;
 use regex::Regex;
 
-use crate::commands::checkout::{self, CheckoutCommandArgs};
+use crate::commands::checkout::CheckoutCommandArgs;
 
-use super::{checkout::{open_repo, checkout}, result::Result, Error};
+use super::{checkout::{checkout, open_repo}, result::Result, stash::{pop_stash, stash}, update::{self, update, UpdateArgs}, Error};
 
 #[derive(Args, Debug)]
 pub struct NewCommandArgs {
@@ -19,9 +19,11 @@ pub fn format_branch_name(message: &str) -> String {
 }
 
 pub fn new(args: &NewCommandArgs) -> Result<()> {
-    let repo = open_repo()?;
+    let mut repo = open_repo()?;
     let branch_name = format_branch_name(&args.message);
-    println!("Branch name: {}", branch_name);
+
+    // Stash changes
+    let oid = stash(&mut repo, args.message.as_str())?;
 
     // Create a branch
     repo.branch(
@@ -38,5 +40,13 @@ pub fn new(args: &NewCommandArgs) -> Result<()> {
     // Checkout the branch
     let checkout_args = CheckoutCommandArgs { branch: branch_name.clone() };
     checkout(&checkout_args)?;
+
+    // Stash pop
+    pop_stash(&mut repo, oid)?;
+
+    // Update branch
+    let update_args = UpdateArgs { message: Some(args.message.clone()) };
+    update(&update_args)?;
+
     Ok(())
 }
