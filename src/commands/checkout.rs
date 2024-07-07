@@ -19,7 +19,7 @@ pub fn open_repo() -> Result<Repository> {
 
 pub fn checkout(args: &CheckoutCommandArgs) -> Result<()> {
     let repo = open_repo()?;
-    let refname = &args.branch;
+    let refname = &args.branch.trim();
     let (object, reference) = repo.revparse_ext(refname).map_err(|_| {
         Error::new(
             ErrorKind::InvalidInput,
