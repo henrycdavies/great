@@ -1,15 +1,10 @@
-use git2::{Oid, Repository, StashApplyFlags, StashApplyOptions, StashFlags};
+use git2::{Oid, Repository, StashFlags};
 
 use super::{error::Error, result::Result};
 
 pub fn stash(repo: &mut Repository, message: &str) -> Result<Oid> {
 
-    let sig = repo.signature().map_err(|_| {
-        Error::new(
-            super::error::ErrorKind::GitError,
-            "User email and/or user name not set. Please set them using `git config --global user.email` and `git config --global user.name`.".to_string()
-        )
-    })?;
+    let sig = repo.signature()?;
     let oid = repo.stash_save(&sig, message, Some(StashFlags::DEFAULT)).map_err(|_| {
         Error::new(
             super::error::ErrorKind::GitError,

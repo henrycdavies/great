@@ -34,3 +34,12 @@ impl fmt::Display for Error {
         write!(f, "Command execution failed")
     }
 }
+
+impl From<git2::Error> for Error {
+    fn from(err: git2::Error) -> Self {
+        Error::new(
+            super::error::ErrorKind::GitError,
+            format!("Git error: {}", err.message()),
+        )
+    }
+}
