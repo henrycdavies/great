@@ -39,6 +39,7 @@ struct Cli {
 /*
 trunk - Go to trunk
 new - Create a branch from current branch
+checkout - Checkout a branch
 update - Reset HEAD to parent branch, stage changes, & make a commit with changes
 delete - Deletes current branch, 
 up - Go to child

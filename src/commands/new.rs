@@ -3,7 +3,7 @@ use regex::Regex;
 
 use crate::commands::checkout::CheckoutCommandArgs;
 
-use super::{checkout::{checkout, open_repo}, result::Result, stash::{pop_stash, stash}, update::{self, update, UpdateArgs}, Error};
+use super::{checkout::{checkout, open_repo}, result::Result, stash::{pop_stash, stash}, update::{update, UpdateArgs}, Error};
 
 #[derive(Args, Debug)]
 pub struct NewCommandArgs {
@@ -46,7 +46,7 @@ pub fn new(args: &NewCommandArgs) -> Result<()> {
 
     // Update branch
     let update_args = UpdateArgs { message: Some(args.message.clone()) };
-    // update(&update_args)?;
+    update(&update_args)?;
 
     Ok(())
 }
