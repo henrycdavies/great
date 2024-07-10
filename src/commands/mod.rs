@@ -8,12 +8,14 @@ mod up;
 mod down;
 mod push;
 mod stash;
+mod sync;
 mod raise_pr;
 mod result;
 use checkout::{checkout, CheckoutCommandArgs};
 use delete::{delete, DeleteCommandArgs};
 use down::{down, DownCommandArgs};
 use result::Result;
+use sync::{sync, SyncCommandArgs};
 use update::{update, UpdateArgs};
 pub use error::Error;
 use new::{new, NewCommandArgs};
@@ -59,6 +61,7 @@ pub enum Commands {
     Down(DownCommandArgs),
     Push(PushCommandArgs),
     RaisePr(RaisePrCommandArgs),
+    Sync(SyncCommandArgs),
 }
 
 impl Commands {
@@ -80,6 +83,7 @@ impl ExecutableCommand for Commands {
             Commands::Down(args) => down(args),
             Commands::Push(args) => push(args),
             Commands::RaisePr(args) => raise_pr(args),
+            Commands::Sync(args) => sync(args),
         }
     }
 }
