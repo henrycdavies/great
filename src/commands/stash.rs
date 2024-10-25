@@ -1,8 +1,8 @@
 use git2::{Oid, Repository, StashFlags};
 
-use super::{error::Error, result::Result};
+use super::{error::Error, result::CmdResult};
 
-pub fn stash(repo: &mut Repository, message: &str) -> Result<Oid> {
+pub fn stash(repo: &mut Repository, message: &str) -> CmdResult<Oid> {
 
     let sig = repo.signature()?;
     let oid = repo.stash_save(&sig, message, Some(StashFlags::DEFAULT)).map_err(|_| {
@@ -14,7 +14,7 @@ pub fn stash(repo: &mut Repository, message: &str) -> Result<Oid> {
     Ok(oid)
 }
 
-pub fn pop_stash(repo: &mut Repository, oid: Oid) -> Result<()> {
+pub fn pop_stash(repo: &mut Repository, oid: Oid) -> CmdResult<()> {
     let mut stash_index: Option<usize> = None;
     repo.stash_foreach(|idx, _, _oid| {
         if *_oid == oid {
