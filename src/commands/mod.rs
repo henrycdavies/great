@@ -14,10 +14,11 @@ mod result;
 use checkout::{checkout, CheckoutCommandArgs};
 use delete::{delete, DeleteCommandArgs};
 use down::{down, DownCommandArgs};
-use result::Result;
+use result::CmdResult;
 use sync::{sync, SyncCommandArgs};
 use update::{update, UpdateArgs};
 pub use error::Error;
+pub use error::ErrorKind;
 use new::{new, NewCommandArgs};
 use push::{push, PushCommandArgs};
 use raise_pr::{raise_pr, RaisePrCommandArgs};
@@ -27,7 +28,7 @@ use up::{up, UpCommandArgs};
 use clap::{Parser, Subcommand};
 
 pub trait ExecutableCommand {
-    fn execute(&self) -> Result<()>;
+    fn execute(&self) -> CmdResult<()>;
 }
 
 #[derive(Parser)]
@@ -72,7 +73,7 @@ impl Commands {
 }
 
 impl ExecutableCommand for Commands {
-    fn execute(&self) -> Result<()> {
+    fn execute(&self) -> CmdResult<()> {
         match self {
             Commands::Checkout(args) => checkout(args),
             Commands::New(args) => new(args),
