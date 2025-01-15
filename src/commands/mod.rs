@@ -1,5 +1,4 @@
 mod checkout;
-mod error;
 mod trunk;
 mod new;
 mod update;
@@ -17,8 +16,7 @@ use down::{down, DownCommandArgs};
 use result::CmdResult;
 use sync::{sync, SyncCommandArgs};
 use update::{update, UpdateArgs};
-pub use error::Error;
-pub use error::ErrorKind;
+pub use crate::error::Error;
 use new::{new, NewCommandArgs};
 use push::{push, PushCommandArgs};
 use raise_pr::{raise_pr, RaisePrCommandArgs};

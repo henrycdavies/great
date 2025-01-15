@@ -1,8 +1,8 @@
 use git2::{Commit, Repository};
 use clap::Args;
 use crate::commands::checkout::open_repo;
-
-use super::{result::CmdResult, error::Error};
+use crate::error::{Error, ErrorKind};
+use super::result::CmdResult;
 
 
 #[derive(Args, Debug)]
@@ -15,7 +15,7 @@ pub struct UpdateArgs {
 pub fn add_all(repo: &git2::Repository) -> CmdResult<()> {
     let mut index = repo.index().map_err(|_| {
         Error::new(
-            super::error::ErrorKind::GitError,
+            ErrorKind::GitError,
             "Failed to get index".to_string(),
         )
     })?;
@@ -24,7 +24,7 @@ pub fn add_all(repo: &git2::Repository) -> CmdResult<()> {
         Ok(_) => return Ok(()),
         Err(_) => {
             return Err(Error::new(
-                super::error::ErrorKind::GitError,
+                ErrorKind::GitError,
                 "Failed to write index".to_string(),
             ))
         }

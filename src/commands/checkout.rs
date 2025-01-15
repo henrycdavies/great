@@ -1,7 +1,7 @@
 use clap::Args;
 use git2::Repository;
-
-use super::{error::ErrorKind, result::CmdResult, Error};
+use crate::error::ErrorKind;
+use super::{result::CmdResult, Error};
 
 #[derive(Args, Debug)]
 pub struct CheckoutCommandArgs {

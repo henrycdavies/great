@@ -1,12 +1,11 @@
-use std::io::stdout;
 
 use clap::Args;
-use git2::build::CheckoutBuilder;
-use git2::{Config, Cred, MergeOptions, RemoteCallbacks, Repository};
-
-use crate::utils::{merge::normal::three_way_merge, pull::pull_changes};
+use git2::{Config, Cred, RemoteCallbacks};
+use crate::error::ErrorKind;
+use crate::utils::{merge::three_way_merge::three_way_merge, pull::pull_changes};
 use crate::utils::merge::fast_forward::fast_forward_merge;
 
+use super::Error;
 use super::{checkout::open_repo, result::CmdResult, trunk::find_trunk_branch};
 
 #[derive(Args, Debug)]
@@ -53,29 +52,23 @@ pub fn sync(args: &SyncCommandArgs) -> CmdResult<()> {
     if analysis.is_fast_forward() {
         // Fast-forward merge
         fast_forward_merge(&repo, trunk_branch_ref.as_str(), &fetch_commit)?;
+        return Ok(());
     } else if analysis.is_normal() {
         let commit = repo.find_commit(fetch_commit.id())?;
-        three_way_merge(&repo, &commit)?;
+        three_way_merge(&repo, &commit).map_err(|err| {
+            Error::new(
+                ErrorKind::GitError,
+                format!("Failed to merge changes: {}", err.message()),
+            )
+        })?;
+        return Ok(());
     } else if analysis.is_up_to_date() {
-        println!("Trunk is up-to-date.")
-    } else {
-        // Merge conflict
-        // Log out 
-        eprintln!("Merge conflict. Resolve them.");
-        handle_conflict(&repo)?
+        println!("Trunk is up-to-date.");
+        return Ok(());
     }
-    Ok(())
-}
-
-fn handle_conflict(repo: &Repository) -> Result<(), git2::Error> {
-    let mut opts = MergeOptions::new();
-    let mut checkout_opts = CheckoutBuilder::new();
-    checkout_opts.safe();
-    repo.merge_commits(
-        &repo.find_commit(repo.head()?.target().unwrap())?,
-        &repo.find_commit(repo.find_reference("FETCH_HEAD")?.target().unwrap())?,
-        Some(&mut opts)
-    )?;
-    repo.checkout_head(Some(&mut checkout_opts))?;
-    Ok(())
+    let error = Error::new(
+        ErrorKind::GitError,
+        "Unknown error".to_string(),
+    );
+    Err(error)
 }

@@ -1,8 +1,8 @@
-use super::{checkout::open_repo, error::ErrorKind, result::CmdResult, Error};
+use super::{checkout::open_repo, result::CmdResult, Error};
 
 use clap::Args;
 use git2::Repository;
-
+use crate::error::ErrorKind;
 use super::checkout::{self, CheckoutCommandArgs};
 
 #[derive(Args, Debug)]
