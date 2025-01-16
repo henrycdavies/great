@@ -1,7 +1,7 @@
+use super::{result::CmdResult, Error};
+use crate::error::ErrorKind;
 use clap::Args;
 use git2::Repository;
-use crate::error::ErrorKind;
-use super::{result::CmdResult, Error};
 
 #[derive(Args, Debug)]
 pub struct CheckoutCommandArgs {
@@ -26,7 +26,7 @@ pub fn checkout(args: &CheckoutCommandArgs) -> CmdResult<()> {
             format!("The branch '{}' was not found in the repository.", refname),
         )
     })?;
-    
+
     if let Err(e) = repo.checkout_tree(&object, None) {
         match e.code() {
             git2::ErrorCode::Conflict {} => {
@@ -34,16 +34,16 @@ pub fn checkout(args: &CheckoutCommandArgs) -> CmdResult<()> {
                     ErrorKind::GitError,
                     format!("Conflicts detected in the {} branch. Please stash your changes, or reset/update your branch and retry.", refname),
                 ));
-            },
+            }
             _ => {
                 return Err(Error::new(
                     ErrorKind::GitError,
                     format!("Unknown error when searching for : {}", e.message()),
                 ));
-            },
+            }
         }
     }
-    
+
     if let Some(branch_ref) = reference {
         repo.set_head(branch_ref.name().unwrap()).map_err(|_| {
             Error::new(

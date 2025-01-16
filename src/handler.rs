@@ -1,5 +1,5 @@
-use std::io::{Result, Error};
-use crate::commands::{Commands, ExecutableCommand, Error as CommandError};
+use crate::commands::{Commands, Error as CommandError, ExecutableCommand};
+use std::io::{Error, Result};
 
 pub struct Handler {}
 

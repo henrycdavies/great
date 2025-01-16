@@ -1,27 +1,27 @@
 mod checkout;
-mod trunk;
-mod new;
-mod update;
 mod delete;
-mod up;
 mod down;
+mod new;
 mod push;
-mod stash;
-mod sync;
 mod raise_pr;
 mod result;
+mod stash;
+mod sync;
+mod trunk;
+mod up;
+mod update;
+pub use crate::error::Error;
 use checkout::{checkout, CheckoutCommandArgs};
 use delete::{delete, DeleteCommandArgs};
 use down::{down, DownCommandArgs};
-use result::CmdResult;
-use sync::{sync, SyncCommandArgs};
-use update::{update, UpdateArgs};
-pub use crate::error::Error;
 use new::{new, NewCommandArgs};
 use push::{push, PushCommandArgs};
 use raise_pr::{raise_pr, RaisePrCommandArgs};
+use result::CmdResult;
+use sync::{sync, SyncCommandArgs};
 use trunk::{trunk, TrunkCommandArgs};
 use up::{up, UpCommandArgs};
+use update::{update, UpdateArgs};
 
 use clap::{Parser, Subcommand};
 
@@ -36,13 +36,12 @@ struct Cli {
     cmd: Commands,
 }
 
-
 /*
 trunk - Go to trunk
 new - Create a branch from current branch
 checkout - Checkout a branch
 update - Reset HEAD to parent branch, stage changes, & make a commit with changes
-delete - Deletes current branch, 
+delete - Deletes current branch,
 up - Go to child
 down - Go to parent
 push - Push to remote (overwrite!)
