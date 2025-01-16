@@ -1,14 +1,14 @@
 use clap::Args;
 use git2::Repository;
-
-use super::{error::ErrorKind, result::Result, Error};
+use crate::error::ErrorKind;
+use super::{result::CmdResult, Error};
 
 #[derive(Args, Debug)]
 pub struct CheckoutCommandArgs {
     pub branch: String,
 }
 
-pub fn open_repo() -> Result<Repository> {
+pub fn open_repo() -> CmdResult<Repository> {
     Repository::open(".").map_err(|e| {
         Error::new(
             ErrorKind::GitError,
@@ -17,7 +17,7 @@ pub fn open_repo() -> Result<Repository> {
     })
 }
 
-pub fn checkout(args: &CheckoutCommandArgs) -> Result<()> {
+pub fn checkout(args: &CheckoutCommandArgs) -> CmdResult<()> {
     let repo = open_repo()?;
     let refname = &args.branch.trim();
     let (object, reference) = repo.revparse_ext(refname).map_err(|_| {

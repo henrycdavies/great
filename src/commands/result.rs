@@ -1,3 +1,3 @@
 use super::Error;
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub type CmdResult<T> = std::result::Result<T, Error>;

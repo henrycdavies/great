@@ -1,20 +1,20 @@
-use super::{checkout::open_repo, error::ErrorKind, result::Result, Error};
+use super::{checkout::open_repo, result::CmdResult, Error};
 
 use clap::Args;
 use git2::Repository;
-
+use crate::error::ErrorKind;
 use super::checkout::{self, CheckoutCommandArgs};
 
 #[derive(Args, Debug)]
 pub struct TrunkCommandArgs {}
 
-pub fn trunk(_args: &TrunkCommandArgs) -> Result<()> {
+pub fn trunk(_args: &TrunkCommandArgs) -> CmdResult<()> {
     let repo = open_repo()?;
     let trunk_branch_name = find_trunk_branch(&repo)?;
     checkout::checkout(&CheckoutCommandArgs { branch: trunk_branch_name })
 }
 
-pub fn find_trunk_branch(repo: &Repository) -> Result<String> {
+pub fn find_trunk_branch(repo: &Repository) -> CmdResult<String> {
     for branch_name in &["main", "master"] {
         if repo.find_branch(branch_name, git2::BranchType::Local).is_ok() {
             return Ok(branch_name.to_string());

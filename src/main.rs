@@ -1,10 +1,10 @@
 #[allow(unused_imports)]
-use clap::{Parser,Command};
-
+use clap::{Command, Parser};
 use handler::Handler;
-
 mod commands;
 mod handler;
+mod utils;
+pub mod error;
 
 fn main() {
     let handler = Handler{};

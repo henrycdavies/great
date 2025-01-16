@@ -1,8 +1,8 @@
 use git2::{Commit, Repository};
 use clap::Args;
 use crate::commands::checkout::open_repo;
-
-use super::{result::Result, error::Error};
+use crate::error::{Error, ErrorKind};
+use super::result::CmdResult;
 
 
 #[derive(Args, Debug)]
@@ -12,10 +12,10 @@ pub struct UpdateArgs {
     pub message: Option<String>,
 }
 
-pub fn add_all(repo: &git2::Repository) -> Result<()> {
+pub fn add_all(repo: &git2::Repository) -> CmdResult<()> {
     let mut index = repo.index().map_err(|_| {
         Error::new(
-            super::error::ErrorKind::GitError,
+            ErrorKind::GitError,
             "Failed to get index".to_string(),
         )
     })?;
@@ -24,14 +24,14 @@ pub fn add_all(repo: &git2::Repository) -> Result<()> {
         Ok(_) => return Ok(()),
         Err(_) => {
             return Err(Error::new(
-                super::error::ErrorKind::GitError,
+                ErrorKind::GitError,
                 "Failed to write index".to_string(),
             ))
         }
     }
 }
 
-pub fn update_with_new_commit(args: &UpdateArgs) -> Result<()> {
+pub fn update_with_new_commit(args: &UpdateArgs) -> CmdResult<()> {
     let repo = open_repo()?;
     add_all(&repo)?;
     
@@ -51,7 +51,7 @@ pub fn update_with_new_commit(args: &UpdateArgs) -> Result<()> {
     Ok(())
 }
 
-pub fn update_with_amend(args: &UpdateArgs) -> Result<()> {
+pub fn update_with_amend(args: &UpdateArgs) -> CmdResult<()> {
     let repo = open_repo()?;
     add_all(&repo)?;
 
@@ -70,14 +70,14 @@ pub fn update_with_amend(args: &UpdateArgs) -> Result<()> {
     Ok(())
 }
 
-pub fn update(args: &UpdateArgs) -> Result<()> {
+pub fn update(args: &UpdateArgs) -> CmdResult<()> {
     if args.commit {
         return update_with_new_commit(args);
     }
     update_with_amend(args)
 }
 
-fn find_last_commit(repo: &Repository) -> Result<Commit> {
+fn find_last_commit(repo: &Repository) -> CmdResult<Commit> {
     let obj = repo.head()?.resolve()?.peel(git2::ObjectType::Commit)?;
     let commit = obj.into_commit().map_err(|_| git2::Error::from_str("Couldn't find last commit"))?;
     Ok(commit)

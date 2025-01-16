@@ -2,8 +2,8 @@ use clap::Args;
 use regex::Regex;
 
 use crate::commands::checkout::CheckoutCommandArgs;
-
-use super::{checkout::{checkout, open_repo}, result::Result, stash::{pop_stash, stash}, update::{update, UpdateArgs}, Error};
+use crate::error::ErrorKind;
+use super::{checkout::{checkout, open_repo}, result::CmdResult, stash::{pop_stash, stash}, update::{update, UpdateArgs}, Error};
 
 #[derive(Args, Debug)]
 pub struct NewCommandArgs {
@@ -18,12 +18,23 @@ pub fn format_branch_name(message: &str) -> String {
     branch_name
 }
 
-pub fn new(args: &NewCommandArgs) -> Result<()> {
+pub fn new(args: &NewCommandArgs) -> CmdResult<()> {
     let mut repo = open_repo()?;
     let branch_name = format_branch_name(&args.message);
 
+    // Check if there are any changes to stash
+    if repo.statuses(None).unwrap().len() > 0 {
+        return Err(Error::new(
+            ErrorKind::GitError,
+            "There are changes in the working directory. Please commit or stash them before creating a new branch.".to_string(),
+        ));
+    }
     // Stash changes
-    let oid = stash(&mut repo, args.message.as_str())?;
+    let should_stash = repo.statuses(None).unwrap().len() > 0;
+    let stash_oid = match should_stash {
+        false => None,
+        _ => Some(stash(&mut repo, args.message.as_str())?),
+    };
 
     // Create a branch
     repo.branch(
@@ -32,7 +43,7 @@ pub fn new(args: &NewCommandArgs) -> Result<()> {
         false,
     ).map_err(|e| {
         Error::new(
-            super::error::ErrorKind::GitError,
+            ErrorKind::GitError,
             format!("Failed to create branch: {}", e),
         )
     })?;
@@ -42,7 +53,9 @@ pub fn new(args: &NewCommandArgs) -> Result<()> {
     checkout(&checkout_args)?;
 
     // Stash pop
-    pop_stash(&mut repo, oid)?;
+    if let Some(oid) = stash_oid {
+        pop_stash(&mut repo, oid)?;
+    }
 
     // Update branch
     let update_args = UpdateArgs { message: Some(args.message.clone()), commit: true };
