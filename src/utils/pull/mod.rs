@@ -1,6 +1,10 @@
 use git2::{FetchOptions, RemoteCallbacks};
 
-pub fn pull_changes<'a>(repo: &'a git2::Repository, remote_name: &str, remote_callbacks: RemoteCallbacks) -> Result<git2::Reference<'a>, git2::Error>{
+pub fn pull_changes<'a>(
+    repo: &'a git2::Repository,
+    remote_name: &str,
+    remote_callbacks: RemoteCallbacks,
+) -> Result<git2::Reference<'a>, git2::Error> {
     let mut remote = repo.find_remote(remote_name)?;
     let branch_ref_specs = ["refs/heads/*:refs/remotes/origin/*"];
     let mut fetch_options = FetchOptions::new();

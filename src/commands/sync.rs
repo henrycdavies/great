@@ -1,9 +1,8 @@
-
+use crate::error::ErrorKind;
+use crate::utils::merge::fast_forward::fast_forward_merge;
+use crate::utils::{merge::three_way_merge::three_way_merge, pull::pull_changes};
 use clap::Args;
 use git2::{Config, Cred, RemoteCallbacks};
-use crate::error::ErrorKind;
-use crate::utils::{merge::three_way_merge::three_way_merge, pull::pull_changes};
-use crate::utils::merge::fast_forward::fast_forward_merge;
 
 use super::Error;
 use super::{checkout::open_repo, result::CmdResult, trunk::find_trunk_branch};
@@ -25,8 +24,12 @@ pub fn sync(args: &SyncCommandArgs) -> CmdResult<()> {
         }
 
         if allowed_types.contains(git2::CredentialType::USER_PASS_PLAINTEXT) {
-            if let (Ok(username_cfg_entry), Ok(password_cfg_entry)) = (config.get_entry("username"), config.get_entry("password")) {
-                if let (Some(username), Some(password)) = (username_cfg_entry.value(), password_cfg_entry.value()) {
+            if let (Ok(username_cfg_entry), Ok(password_cfg_entry)) =
+                (config.get_entry("username"), config.get_entry("password"))
+            {
+                if let (Some(username), Some(password)) =
+                    (username_cfg_entry.value(), password_cfg_entry.value())
+                {
                     let cred = Cred::userpass_plaintext(username, password)?;
                     return Ok(cred);
                 }
@@ -36,7 +39,11 @@ pub fn sync(args: &SyncCommandArgs) -> CmdResult<()> {
         Err(git2::Error::from_str("No valid credentials found"))
     });
     callbacks.transfer_progress(|stats| {
-        println!("Received {}/{} objects", stats.received_objects(), stats.total_objects());
+        println!(
+            "Received {}/{} objects",
+            stats.received_objects(),
+            stats.total_objects()
+        );
         true
     });
 
@@ -66,9 +73,6 @@ pub fn sync(args: &SyncCommandArgs) -> CmdResult<()> {
         println!("Trunk is up-to-date.");
         return Ok(());
     }
-    let error = Error::new(
-        ErrorKind::GitError,
-        "Unknown error".to_string(),
-    );
+    let error = Error::new(ErrorKind::GitError, "Unknown error".to_string());
     Err(error)
 }

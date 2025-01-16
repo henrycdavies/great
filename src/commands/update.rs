@@ -1,9 +1,8 @@
-use git2::{Commit, Repository};
-use clap::Args;
+use super::result::CmdResult;
 use crate::commands::checkout::open_repo;
 use crate::error::{Error, ErrorKind};
-use super::result::CmdResult;
-
+use clap::Args;
+use git2::{Commit, Repository};
 
 #[derive(Args, Debug)]
 pub struct UpdateArgs {
@@ -13,12 +12,9 @@ pub struct UpdateArgs {
 }
 
 pub fn add_all(repo: &git2::Repository) -> CmdResult<()> {
-    let mut index = repo.index().map_err(|_| {
-        Error::new(
-            ErrorKind::GitError,
-            "Failed to get index".to_string(),
-        )
-    })?;
+    let mut index = repo
+        .index()
+        .map_err(|_| Error::new(ErrorKind::GitError, "Failed to get index".to_string()))?;
     index.add_all(["*"].iter(), git2::IndexAddOption::DEFAULT, None)?;
     match index.write() {
         Ok(_) => return Ok(()),
@@ -34,7 +30,7 @@ pub fn add_all(repo: &git2::Repository) -> CmdResult<()> {
 pub fn update_with_new_commit(args: &UpdateArgs) -> CmdResult<()> {
     let repo = open_repo()?;
     add_all(&repo)?;
-    
+
     let sig = repo.signature()?;
     let tree_id = repo.index()?.write_tree()?;
     let tree = repo.find_tree(tree_id)?;
@@ -79,6 +75,8 @@ pub fn update(args: &UpdateArgs) -> CmdResult<()> {
 
 fn find_last_commit(repo: &Repository) -> CmdResult<Commit> {
     let obj = repo.head()?.resolve()?.peel(git2::ObjectType::Commit)?;
-    let commit = obj.into_commit().map_err(|_| git2::Error::from_str("Couldn't find last commit"))?;
+    let commit = obj
+        .into_commit()
+        .map_err(|_| git2::Error::from_str("Couldn't find last commit"))?;
     Ok(commit)
 }

@@ -1,9 +1,15 @@
 use clap::Args;
 use regex::Regex;
 
+use super::{
+    checkout::{checkout, open_repo},
+    result::CmdResult,
+    stash::{pop_stash, stash},
+    update::{update, UpdateArgs},
+    Error,
+};
 use crate::commands::checkout::CheckoutCommandArgs;
 use crate::error::ErrorKind;
-use super::{checkout::{checkout, open_repo}, result::CmdResult, stash::{pop_stash, stash}, update::{update, UpdateArgs}, Error};
 
 #[derive(Args, Debug)]
 pub struct NewCommandArgs {
@@ -41,7 +47,8 @@ pub fn new(args: &NewCommandArgs) -> CmdResult<()> {
         &branch_name,
         &repo.head().unwrap().peel_to_commit().unwrap(),
         false,
-    ).map_err(|e| {
+    )
+    .map_err(|e| {
         Error::new(
             ErrorKind::GitError,
             format!("Failed to create branch: {}", e),
@@ -49,7 +56,9 @@ pub fn new(args: &NewCommandArgs) -> CmdResult<()> {
     })?;
 
     // Checkout the branch
-    let checkout_args = CheckoutCommandArgs { branch: branch_name.clone() };
+    let checkout_args = CheckoutCommandArgs {
+        branch: branch_name.clone(),
+    };
     checkout(&checkout_args)?;
 
     // Stash pop
@@ -58,7 +67,10 @@ pub fn new(args: &NewCommandArgs) -> CmdResult<()> {
     }
 
     // Update branch
-    let update_args = UpdateArgs { message: Some(args.message.clone()), commit: true };
+    let update_args = UpdateArgs {
+        message: Some(args.message.clone()),
+        commit: true,
+    };
     update(&update_args)?;
 
     Ok(())

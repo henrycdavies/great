@@ -35,7 +35,7 @@ pub type ConflictHandleResult<T> = Result<T, ConflictHandleError>;
 ///
 /// ConflictHandler is a struct that handles conflicts in the index
 /// and writes conflict markers to the working directory
-/// 
+///
 pub struct ConflictHandler<'a> {
     repo: &'a Repository,
     index: Index,
@@ -44,14 +44,14 @@ pub struct ConflictHandler<'a> {
 impl<'a> ConflictHandler<'a> {
     ///
     /// Creates a new `ConflictHandler`
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `repo` - A reference to the `Repository`
     /// * `index` - The `Index` with conflicts
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// A new `ConflictHandler`
     pub fn new(repo: &'a Repository, index: Index) -> Self {
         Self { repo, index }
@@ -59,15 +59,15 @@ impl<'a> ConflictHandler<'a> {
 
     ///
     /// Writes conflict markers for all conflicts in the index to the working directory
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// A `Result` containing `()` if the conflict markers were written successfully
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// An error of type `ConflictHandleError` if the conflict markers could not be written
-    /// 
+    ///
     pub fn write_all_markers(&self) -> ConflictHandleResult<()> {
         let mut conflict_paths: Vec<String> = Vec::new();
         for conflict in self.find_conflicts()?.into_iter().filter_map(Result::ok) {
@@ -75,29 +75,33 @@ impl<'a> ConflictHandler<'a> {
                 let conflict_path = self.write_conflict_markers(our, their)?;
                 conflict_paths.push(conflict_path);
                 self.log_conflict_paths(&conflict_paths);
-                return Ok(())
+                return Ok(());
             }
             return Err(ConflictHandleError {
                 kind: ConflictHandleErrorKind::GitError,
                 message: "Conflict has missing sides".to_string(),
-            })
+            });
         }
         Ok(())
     }
 
     ///
     /// Writes conflict markers for a specific conflict to the working directory
-    /// 
+    ///
     /// # Arguments
-    /// 
+    ///
     /// * `our` - The `IndexEntry` for the "our" side of the conflict
     /// * `their` - The `IndexEntry` for the "their" side of the conflict
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// A `Result` containing `()` if the conflict markers were written successfully
-    /// 
-    fn write_conflict_markers(&self, our: IndexEntry, their: IndexEntry) -> ConflictHandleResult<String> {
+    ///
+    fn write_conflict_markers(
+        &self,
+        our: IndexEntry,
+        their: IndexEntry,
+    ) -> ConflictHandleResult<String> {
         let our_blob = self.repo.find_blob(our.id)?;
         let their_blob = self.repo.find_blob(their.id)?;
 
@@ -133,24 +137,29 @@ impl<'a> ConflictHandler<'a> {
                 "Failed to write conflict markers".to_string(),
             )
         })?;
-        return Ok(path.to_string())
+        return Ok(path.to_string());
     }
 
     ///
     /// Finds all conflicts in the index
-    /// 
+    ///
     /// # Returns
-    /// 
+    ///
     /// A `Result` containing an `IndexConflicts` iterator
-    /// 
+    ///
     fn find_conflicts(&self) -> Result<IndexConflicts<'_>, git2::Error> {
         self.index.conflicts()
     }
 
     fn log_conflict_paths(&self, conflict_paths: &[String]) {
-        let message_header = format!("🚨 {} conflict(s) found in the following files:", conflict_paths.len());
+        let message_header = format!(
+            "🚨 {} conflict(s) found in the following files:",
+            conflict_paths.len()
+        );
         let message_body = conflict_paths.join("\n");
-        let message_footer = String::from("Resolve these conflicts and run \"great continue\" to continue the recursive sync.");
+        let message_footer = String::from(
+            "Resolve these conflicts and run \"great continue\" to continue the recursive sync.",
+        );
         let message = [message_header, message_body, message_footer].join("\n\n");
         println!("{}", message);
     }

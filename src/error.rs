@@ -37,9 +37,6 @@ impl fmt::Display for Error {
 
 impl From<git2::Error> for Error {
     fn from(err: git2::Error) -> Self {
-        Error::new(
-            ErrorKind::GitError,
-            format!("Git error: {}", err.message()),
-        )
+        Error::new(ErrorKind::GitError, format!("Git error: {}", err.message()))
     }
 }
