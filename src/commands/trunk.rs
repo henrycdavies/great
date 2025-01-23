@@ -1,7 +1,8 @@
-use super::{checkout::open_repo, result::CmdResult, Error};
+use super::error::CommandErrorKind;
+use super::CommandError;
+use super::{checkout::open_repo, result::CmdResult};
 
 use super::checkout::{self, CheckoutCommandArgs};
-use crate::error::ErrorKind;
 use clap::Args;
 use git2::Repository;
 
@@ -28,14 +29,14 @@ pub fn find_trunk_branch(repo: &Repository) -> CmdResult<String> {
 
     let head = repo.head().map_err(|e| {
         // Error::new(std::io::ErrorKind::InvalidInput, e)
-        Error::new(ErrorKind::GitError, format!("Failed to get HEAD: {}", e))
+        CommandError::new(CommandErrorKind::GitError, format!("Failed to get HEAD: {}", e))
     })?;
     if let Some(name) = head.shorthand() {
         return Ok(name.to_string());
     }
 
-    Err(Error::new(
-        ErrorKind::InvalidInput,
+    Err(CommandError::new(
+        CommandErrorKind::InvalidInput,
         "Failed to determine trunk branch".to_string(),
     ))
 }

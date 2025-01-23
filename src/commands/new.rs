@@ -2,14 +2,9 @@ use clap::Args;
 use regex::Regex;
 
 use super::{
-    checkout::{checkout, open_repo},
-    result::CmdResult,
-    stash::{pop_stash, stash},
-    update::{update, UpdateArgs},
-    Error,
+    checkout::{checkout, open_repo}, error::CommandErrorKind, result::CmdResult, stash::{pop_stash, stash}, update::{update, UpdateArgs}, CommandError
 };
 use crate::commands::checkout::CheckoutCommandArgs;
-use crate::error::ErrorKind;
 
 #[derive(Args, Debug)]
 pub struct NewCommandArgs {
@@ -30,8 +25,8 @@ pub fn new(args: &NewCommandArgs) -> CmdResult<()> {
 
     // Check if there are any changes to stash
     if repo.statuses(None).unwrap().len() > 0 {
-        return Err(Error::new(
-            ErrorKind::GitError,
+        return Err(CommandError::new(
+            CommandErrorKind::GitError,
             "There are changes in the working directory. Please commit or stash them before creating a new branch.".to_string(),
         ));
     }
@@ -49,8 +44,8 @@ pub fn new(args: &NewCommandArgs) -> CmdResult<()> {
         false,
     )
     .map_err(|e| {
-        Error::new(
-            ErrorKind::GitError,
+        CommandError::new(
+            CommandErrorKind::GitError,
             format!("Failed to create branch: {}", e),
         )
     })?;

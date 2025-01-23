@@ -2,7 +2,6 @@
 use clap::{Command, Parser};
 use handler::Handler;
 mod commands;
-pub mod error;
 mod handler;
 mod utils;
 
