@@ -1,4 +1,7 @@
-use crate::utils::merge::result::MergeError;
+use crate::utils::{
+    merge::{conflict::ConflictHandleError, result::MergeError},
+    stash::result::StashError,
+};
 
 pub enum CommandErrorKind {
     GitError,
@@ -26,13 +29,25 @@ impl CommandError {
 }
 
 impl From<git2::Error> for CommandError {
-    fn from(err: git2::Error) -> Self {
-        CommandError::new(CommandErrorKind::GitError, err.message().to_string())
+    fn from(value: git2::Error) -> Self {
+        CommandError::new(CommandErrorKind::GitError, value.message().to_string())
     }
 }
 
 impl From<MergeError> for CommandError {
-    fn from(err: MergeError) -> Self {
-        CommandError::new(CommandErrorKind::MergeError, err.message().to_string())
+    fn from(value: MergeError) -> Self {
+        CommandError::new(CommandErrorKind::MergeError, value.message().to_string())
+    }
+}
+
+impl From<StashError> for CommandError {
+    fn from(value: StashError) -> Self {
+        CommandError::new(CommandErrorKind::GitError, value.message().to_string())
+    }
+}
+
+impl From<ConflictHandleError> for CommandError {
+    fn from(value: ConflictHandleError) -> Self {
+        CommandError::new(CommandErrorKind::GitError, value.message().to_string())
     }
 }

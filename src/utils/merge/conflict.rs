@@ -158,7 +158,7 @@ impl<'a> ConflictHandler<'a> {
         );
         let message_body = conflict_paths.join("\n");
         let message_footer = String::from(
-            "Resolve these conflicts and run \"great continue\" to continue the recursive sync.",
+            "Resolve these conflicts and run \"great resolve\" to continue the recursive sync.",
         );
         let message = [message_header, message_body, message_footer].join("\n\n");
         println!("{}", message);
