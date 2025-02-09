@@ -1,4 +1,7 @@
-use super::{error::{CommandErrorKind, CommandError}, result::CmdResult};
+use super::{
+    error::{CommandError, CommandErrorKind},
+    result::CmdResult,
+};
 use clap::Args;
 use git2::Repository;
 

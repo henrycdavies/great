@@ -1,4 +1,4 @@
-use crate::utils::stack::StackError;
+use crate::utils::{stack::StackError, stash::result::StashError};
 
 use super::conflict::ConflictHandleError;
 
@@ -50,6 +50,15 @@ impl From<StackError> for MergeError {
         Self::new(
             MergeErrorKind::StackError,
             format!("Conflict handle error: {}", err.message()),
+        )
+    }
+}
+
+impl From<StashError> for MergeError {
+    fn from(err: StashError) -> Self {
+        Self::new(
+            MergeErrorKind::Unknown,
+            format!("Stash manage error: {}", err.message()),
         )
     }
 }

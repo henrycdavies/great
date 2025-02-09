@@ -2,9 +2,16 @@ use clap::Args;
 use regex::Regex;
 
 use super::{
-    checkout::{checkout, open_repo}, error::CommandErrorKind, result::CmdResult, stash::{pop_stash, stash}, update::{update, UpdateArgs}, CommandError
+    checkout::{checkout, open_repo},
+    error::CommandErrorKind,
+    result::CmdResult,
+    update::{update, UpdateArgs},
+    CommandError,
 };
-use crate::commands::checkout::CheckoutCommandArgs;
+use crate::{
+    commands::checkout::CheckoutCommandArgs,
+    utils::stash::{pop_stash, stash},
+};
 
 #[derive(Args, Debug)]
 pub struct NewCommandArgs {

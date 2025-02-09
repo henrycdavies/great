@@ -29,7 +29,10 @@ pub fn find_trunk_branch(repo: &Repository) -> CmdResult<String> {
 
     let head = repo.head().map_err(|e| {
         // Error::new(std::io::ErrorKind::InvalidInput, e)
-        CommandError::new(CommandErrorKind::GitError, format!("Failed to get HEAD: {}", e))
+        CommandError::new(
+            CommandErrorKind::GitError,
+            format!("Failed to get HEAD: {}", e),
+        )
     })?;
     if let Some(name) = head.shorthand() {
         return Ok(name.to_string());

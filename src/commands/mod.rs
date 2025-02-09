@@ -5,20 +5,21 @@ mod error;
 mod new;
 mod push;
 mod raise_pr;
+mod resolve;
 mod result;
-mod stash;
 mod sync;
 mod trunk;
 mod up;
 mod update;
-pub use error::{CommandError, CommandErrorKind};
-pub use result::CmdResult;
 use checkout::{checkout, CheckoutCommandArgs};
 use delete::{delete, DeleteCommandArgs};
 use down::{down, DownCommandArgs};
+pub use error::{CommandError, CommandErrorKind};
 use new::{new, NewCommandArgs};
 use push::{push, PushCommandArgs};
 use raise_pr::{raise_pr, RaisePrCommandArgs};
+use resolve::{resolve, ResolveArgs};
+pub use result::CmdResult;
 use sync::{sync, SyncCommandArgs};
 use trunk::{trunk, TrunkCommandArgs};
 use up::{up, UpCommandArgs};
@@ -60,6 +61,7 @@ pub enum Commands {
     Down(DownCommandArgs),
     Push(PushCommandArgs),
     RaisePr(RaisePrCommandArgs),
+    Resolve(ResolveArgs),
     Sync(SyncCommandArgs),
 }
 
@@ -74,6 +76,7 @@ impl ExecutableCommand for Commands {
     fn execute(&self) -> CmdResult<()> {
         match self {
             Commands::Checkout(args) => checkout(args),
+            Commands::Resolve(args) => resolve(args),
             Commands::New(args) => new(args),
             Commands::Trunk(args) => trunk(args),
             Commands::Update(args) => update(args),

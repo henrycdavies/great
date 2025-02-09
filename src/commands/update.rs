@@ -11,9 +11,12 @@ pub struct UpdateArgs {
 }
 
 pub fn add_all(repo: &git2::Repository) -> CmdResult<()> {
-    let mut index = repo
-        .index()
-        .map_err(|_| CommandError::new(CommandErrorKind::GitError, "Failed to get index".to_string()))?;
+    let mut index = repo.index().map_err(|_| {
+        CommandError::new(
+            CommandErrorKind::GitError,
+            "Failed to get index".to_string(),
+        )
+    })?;
     index.add_all(["*"].iter(), git2::IndexAddOption::DEFAULT, None)?;
     match index.write() {
         Ok(_) => return Ok(()),
