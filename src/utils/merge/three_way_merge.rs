@@ -1,16 +1,7 @@
 use super::{
-    conflict::{ConflictHandleError, ConflictHandler},
-    result::{MergeError, MergeErrorKind, MergeResult},
+    conflict::ConflictHandler,
+    result::MergeResult,
 };
-
-impl From<ConflictHandleError> for MergeError {
-    fn from(err: ConflictHandleError) -> Self {
-        Self::new(
-            MergeErrorKind::ConflictHandleError,
-            format!("Conflict handle error: {}", err.message()),
-        )
-    }
-}
 
 pub fn three_way_merge(repo: &git2::Repository, commit: &git2::Commit) -> MergeResult<()> {
     // Normal merge

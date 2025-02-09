@@ -1,5 +1,11 @@
+use crate::utils::stack::StackError;
+
+use super::conflict::ConflictHandleError;
+
 pub enum MergeErrorKind {
     ConflictHandleError,
+    StackError,
+    Unknown,
 }
 
 pub struct MergeError {
@@ -26,6 +32,24 @@ impl From<git2::Error> for MergeError {
         Self::new(
             MergeErrorKind::ConflictHandleError,
             format!("Git error: {}", err.message()),
+        )
+    }
+}
+
+impl From<ConflictHandleError> for MergeError {
+    fn from(err: ConflictHandleError) -> Self {
+        Self::new(
+            MergeErrorKind::ConflictHandleError,
+            format!("Conflict handle error: {}", err.message()),
+        )
+    }
+}
+
+impl From<StackError> for MergeError {
+    fn from(err: StackError) -> Self {
+        Self::new(
+            MergeErrorKind::StackError,
+            format!("Conflict handle error: {}", err.message()),
         )
     }
 }

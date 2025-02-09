@@ -1,16 +1,14 @@
-use crate::error::ErrorKind;
-use crate::utils::merge::fast_forward::fast_forward_merge;
-use crate::utils::{merge::three_way_merge::three_way_merge, pull::pull_changes};
+use crate::utils::merge::handler::MergeHandler;
+use crate::utils::pull::pull_changes;
 use clap::Args;
 use git2::{Config, Cred, RemoteCallbacks};
 
-use super::Error;
-use super::{checkout::open_repo, result::CmdResult, trunk::find_trunk_branch};
+use super::{checkout::open_repo, result::CmdResult};
 
 #[derive(Args, Debug)]
 pub struct SyncCommandArgs {}
 
-pub fn sync(args: &SyncCommandArgs) -> CmdResult<()> {
+pub fn sync(_args: &SyncCommandArgs) -> CmdResult<()> {
     let repo = open_repo()?;
 
     // Configure auth & progress reporting
@@ -51,28 +49,9 @@ pub fn sync(args: &SyncCommandArgs) -> CmdResult<()> {
     let fetch_head = pull_changes(&repo, "origin", callbacks)?;
 
     // Merge changes
-    let fetch_commit = repo.reference_to_annotated_commit(&fetch_head)?;
-    let (analysis, _) = repo.merge_analysis(&[&fetch_commit])?;
+    let merge_handler = MergeHandler::new(&repo, &fetch_head);
 
-    let trunk_branch = find_trunk_branch(&repo)?;
-    let trunk_branch_ref = format!("refs/heads/{}", trunk_branch);
-    if analysis.is_fast_forward() {
-        // Fast-forward merge
-        fast_forward_merge(&repo, trunk_branch_ref.as_str(), &fetch_commit)?;
-        return Ok(());
-    } else if analysis.is_normal() {
-        let commit = repo.find_commit(fetch_commit.id())?;
-        three_way_merge(&repo, &commit).map_err(|err| {
-            Error::new(
-                ErrorKind::GitError,
-                format!("Failed to merge changes: {}", err.message()),
-            )
-        })?;
-        return Ok(());
-    } else if analysis.is_up_to_date() {
-        println!("Trunk is up-to-date.");
-        return Ok(());
-    }
-    let error = Error::new(ErrorKind::GitError, "Unknown error".to_string());
-    Err(error)
+    merge_handler.try_merge()?;
+
+    Ok(())
 }
