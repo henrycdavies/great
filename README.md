@@ -1,8 +1,12 @@
 # great
 
+🚨 **This project is a quick (& dirty) WIP PoC. Do not trust it with your work unless you are comfortable with risk of data loss.** 🚨
+
+
 A zippy [stacked workflow](https://www.stacking.dev) CLI leveraging [git2-rs libgit2 bindings for Rust](https://github.com/rust-lang/git2-rs).
 
 The project is under active development with one regular contributor, and is in prototyping/proof-of-concept stage.
+
 
 ## Motivation
 
@@ -38,10 +42,17 @@ Below is a non-exhaustive list of commands planned for implementation. Their nam
 | `down` | Navigates down the current stack of branches. | | |
 | `new` | Creates a new branch on top of the current stack as direct descendent. | Working | Edge case bugs probably exist. |
 | `publish` | Updates existing branch and pushes to the remote. | | Publish will push by default. Adding `--pr` will submit a pull request with the user's configured Git provider. |
-| `sync` | Fetches and pulls the latest trunk revision into the local repository, merging upstream changes or requiring users to merge conflicts if they exist. | Work in progress | Sync of trunk currently works. Conflict markers are written if there are merge conflicts. These are resolvable through regular git usage. |
+| `sync` | Fetches and pulls the latest trunk revision into the local repository, merging upstream changes or requiring users to merge conflicts if they exist. | Work in progress | Works but no recursion for child branches. |
 | `trunk` | Checks out the trunk branch. | Working | Edge case bugs probably exist. |
 | `up` | Navigates up the current stack of branches. | | |
 | `update` | Modifies the current working branch. Currently this essentially rewinds the commit history to the parent branch, keeping the changes from the exisiting commit, adding current changes, and making a fresh commit to the branch. Usage of `new` is preferable  | Working | Edge case bugs probably exist. |
+
+Additionally:
+
+- Unit tests
+- Integration tests
+- Refactoring and a bit of love
+- Documentation
 
 ## Contributing
 
