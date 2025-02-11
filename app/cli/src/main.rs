@@ -1,9 +1,9 @@
 #[allow(unused_imports)]
+extern crate lib;
 use clap::{Command, Parser};
 use handler::Handler;
 mod commands;
 mod handler;
-mod utils;
 
 fn main() {
     let handler = Handler {};

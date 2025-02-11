@@ -52,6 +52,7 @@ Additionally:
 - Unit tests
 - Integration tests
 - Refactoring and a bit of love
+- ^^ Error handling needs a lot of work.
 - Documentation
 
 ## Contributing

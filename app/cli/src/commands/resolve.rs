@@ -1,7 +1,8 @@
-use crate::utils::merge::handler::MergeHandler;
+use crate::lib::merge::handler::MergeHandler;
 
-use super::{checkout::open_repo, update::add_all, CmdResult};
+use super::CmdResult;
 use clap::Args;
+use lib::repo::{add_all, open_repo};
 
 #[derive(Args, Debug)]
 pub struct ResolveArgs {}

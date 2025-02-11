@@ -1,4 +1,6 @@
-use crate::utils::{
+use lib::{branch::BranchError, repo::RepoError};
+
+use crate::lib::{
     merge::{conflict::ConflictHandleError, result::MergeError},
     stash::result::StashError,
 };
@@ -6,6 +8,7 @@ use crate::utils::{
 pub enum CommandErrorKind {
     GitError,
     MergeError,
+    RepoHandleError,
     InvalidInput,
 }
 
@@ -28,8 +31,14 @@ impl CommandError {
     }
 }
 
-impl From<git2::Error> for CommandError {
-    fn from(value: git2::Error) -> Self {
+impl From<BranchError> for CommandError {
+    fn from(value: BranchError) -> Self {
+        CommandError::new(CommandErrorKind::RepoHandleError, value.message().to_string())
+    }
+}
+
+impl From<ConflictHandleError> for CommandError {
+    fn from(value: ConflictHandleError) -> Self {
         CommandError::new(CommandErrorKind::GitError, value.message().to_string())
     }
 }
@@ -40,14 +49,15 @@ impl From<MergeError> for CommandError {
     }
 }
 
+impl From<RepoError> for CommandError {
+    fn from(value: RepoError) -> Self {
+        CommandError::new(CommandErrorKind::RepoHandleError, value.message().to_string())
+    }
+}
+
 impl From<StashError> for CommandError {
     fn from(value: StashError) -> Self {
         CommandError::new(CommandErrorKind::GitError, value.message().to_string())
     }
 }
 
-impl From<ConflictHandleError> for CommandError {
-    fn from(value: ConflictHandleError) -> Self {
-        CommandError::new(CommandErrorKind::GitError, value.message().to_string())
-    }
-}
