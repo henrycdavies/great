@@ -2,7 +2,6 @@ use git2::Repository;
 
 use super::result::{BranchError, BranchErrorKind, BranchResult};
 
-
 pub fn find_trunk_branch(repo: &Repository) -> BranchResult<String> {
     for branch_name in &["main", "master"] {
         if repo

@@ -1,6 +1,9 @@
 use crate::lib::merge::handler::MergeHandler;
 use clap::Args;
-use lib::{remote::{configure_callbacks, pull_changes}, repo::open_repo};
+use lib::{
+    remote::{configure_callbacks, pull_changes},
+    repo::open_repo,
+};
 
 use super::result::CmdResult;
 
