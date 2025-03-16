@@ -9,7 +9,7 @@ pub enum CommandErrorKind {
     GitError,
     MergeError,
     RepoHandleError,
-    InvalidInput,
+    PullError,
 }
 
 pub struct CommandError {
@@ -33,7 +33,10 @@ impl CommandError {
 
 impl From<BranchError> for CommandError {
     fn from(value: BranchError) -> Self {
-        CommandError::new(CommandErrorKind::RepoHandleError, value.message().to_string())
+        CommandError::new(
+            CommandErrorKind::RepoHandleError,
+            value.message().to_string(),
+        )
     }
 }
 
@@ -51,7 +54,10 @@ impl From<MergeError> for CommandError {
 
 impl From<RepoError> for CommandError {
     fn from(value: RepoError) -> Self {
-        CommandError::new(CommandErrorKind::RepoHandleError, value.message().to_string())
+        CommandError::new(
+            CommandErrorKind::RepoHandleError,
+            value.message().to_string(),
+        )
     }
 }
 
@@ -60,4 +66,3 @@ impl From<StashError> for CommandError {
         CommandError::new(CommandErrorKind::GitError, value.message().to_string())
     }
 }
-

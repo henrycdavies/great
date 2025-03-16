@@ -1,6 +1,5 @@
 #[allow(unused_imports)]
 extern crate lib;
-use clap::{Command, Parser};
 use handler::Handler;
 mod commands;
 mod handler;

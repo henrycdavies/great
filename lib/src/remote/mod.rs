@@ -1,4 +1,7 @@
-use git2::{Config, Cred, RemoteCallbacks, FetchOptions};
+mod result;
+
+use git2::{Config, Cred, FetchOptions, RemoteCallbacks};
+pub use result::{PullError, PullResult};
 
 pub fn configure_callbacks<'a>() -> RemoteCallbacks<'a> {
     let mut callbacks = RemoteCallbacks::new();
@@ -36,12 +39,11 @@ pub fn configure_callbacks<'a>() -> RemoteCallbacks<'a> {
     callbacks
 }
 
-
 pub fn pull_changes<'a>(
     repo: &'a git2::Repository,
     remote_name: &str,
     remote_callbacks: RemoteCallbacks,
-) -> Result<git2::Reference<'a>, git2::Error> {
+) -> PullResult<git2::Reference<'a>> {
     let mut remote = repo.find_remote(remote_name)?;
     let branch_ref_specs = ["refs/heads/*:refs/remotes/origin/*"];
     let mut fetch_options = FetchOptions::new();
