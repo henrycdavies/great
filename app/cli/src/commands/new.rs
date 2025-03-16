@@ -1,8 +1,9 @@
 use clap::Args;
+use lib::repo::open_repo;
 use regex::Regex;
 
 use super::{
-    checkout::{checkout, open_repo},
+    checkout::checkout,
     error::CommandErrorKind,
     result::CmdResult,
     update::{update, UpdateArgs},
@@ -10,7 +11,7 @@ use super::{
 };
 use crate::{
     commands::checkout::CheckoutCommandArgs,
-    utils::stash::{pop_stash, stash},
+    lib::stash::{pop_stash, stash},
 };
 
 #[derive(Args, Debug)]

@@ -1,17 +1,9 @@
-use crate::utils::merge::handler::MergeHandler;
-use crate::utils::pull::pull_changes;
-use clap::Args;
-use git2::{Config, Cred, RemoteCallbacks};
+mod result;
 
-use super::{checkout::open_repo, result::CmdResult};
+use git2::{Config, Cred, FetchOptions, RemoteCallbacks};
+pub use result::{PullError, PullResult};
 
-#[derive(Args, Debug)]
-pub struct SyncCommandArgs {}
-
-pub fn sync(_args: &SyncCommandArgs) -> CmdResult<()> {
-    let repo = open_repo()?;
-
-    // Configure auth & progress reporting
+pub fn configure_callbacks<'a>() -> RemoteCallbacks<'a> {
     let mut callbacks = RemoteCallbacks::new();
     callbacks.credentials(|url, username_from_url, allowed_types| {
         let config = Config::open_default()?;
@@ -44,16 +36,24 @@ pub fn sync(_args: &SyncCommandArgs) -> CmdResult<()> {
         );
         true
     });
+    callbacks
+}
 
-    // Pull changes
-    let fetch_head = pull_changes(&repo, "origin", callbacks)?;
+pub fn pull_changes<'a>(
+    repo: &'a git2::Repository,
+    remote_name: &str,
+    remote_callbacks: RemoteCallbacks,
+) -> PullResult<git2::Reference<'a>> {
+    let mut remote = repo.find_remote(remote_name)?;
+    let branch_ref_specs = ["refs/heads/*:refs/remotes/origin/*"];
+    let mut fetch_options = FetchOptions::new();
+    fetch_options.remote_callbacks(remote_callbacks);
+    fetch_options.prune(git2::FetchPrune::On);
 
-    // Merge changes
-    // TODO: We need to fix this. Currently it doesn't stash the locally made commit(s), then apply them on master.
-    // It instead tries the opposite way round (merge remote onto local).
-    let merge_handler = MergeHandler::new(&repo, Some(&fetch_head));
+    // Fetch
+    remote.fetch(&branch_ref_specs, Some(&mut fetch_options), None)?;
 
-    merge_handler.try_merge()?;
-    println!("Sync successful.");
-    Ok(())
+    // Merge fetched changes
+    let fetch_head = repo.find_reference("FETCH_HEAD")?;
+    Ok(fetch_head)
 }

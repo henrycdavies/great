@@ -1,4 +1,4 @@
-use crate::utils::{stack::StackError, stash::result::StashError};
+use crate::{stack::StackError, stash::result::StashError};
 
 use super::conflict::ConflictHandleError;
 

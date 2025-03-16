@@ -1,6 +1,6 @@
 use git2::{AnnotatedCommit, Reference, Repository};
 
-use crate::utils::stack::Stack;
+use crate::stack::Stack;
 
 use super::{
     conflict::ConflictHandler,
